@@ -7,16 +7,28 @@ export async function onRequest(context) {
   const AI_USER_ID = 'ai-agent-001';
 
   if (request.method === 'GET') {
+    const unreadOnly = url.searchParams.get('unread') === 'true';
+    const whereClause = unreadOnly ? 'WHERE m.is_read = 0' : '';
+
     // Grant full data access: Fetch all messages from all rooms
     const { results } = await env.zagent_db.prepare(`
       SELECT m.*, u.name, u.role, r.name as roomName
       FROM messages m
       JOIN users u ON m.user_id = u.id
       JOIN rooms r ON m.room_id = r.id
+      ${whereClause}
       ORDER BY m.created_at DESC
       LIMIT 100
     `).all();
     return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
+  }
+
+  if (request.method === 'PATCH') {
+    // Mark all unread messages as read
+    const { results } = await env.zagent_db.prepare(`
+      UPDATE messages SET is_read = 1 WHERE is_read = 0
+    `).run();
+    return new Response(JSON.stringify({ success: true, count: results?.changes || 0 }), { status: 200 });
   }
 
   if (request.method === 'POST') {

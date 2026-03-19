@@ -34,27 +34,6 @@ export async function onRequest(context) {
         method: 'POST',
         body: JSON.stringify({ type: 'NEW_MESSAGE', roomId })
       }));
-
-      // Trigger AI if it's an AI room
-      if (roomId.startsWith('ai-private-') && userId !== 'ai-agent-001') {
-        // Send typing status
-        await room.fetch(new Request('http://localhost/broadcast', {
-          method: 'POST',
-          body: JSON.stringify({ type: 'TYPING', roomId, userId: 'ai-agent-001', name: 'AI Assistant' })
-        }));
-
-        // Simulate AI thinking and then responding
-        // We use waitUntil to not block the current request
-        context.waitUntil((async () => {
-          await new Promise(r => setTimeout(r, 1500)); // Simulate thinking
-          
-          const aiResponse = await fetch(`${new URL(request.url).origin}/api/ai`, {
-            method: 'POST',
-            body: JSON.stringify({ roomId, content: `I received your message: "${content}". How can I help you further?` }),
-            headers: { 'Content-Type': 'application/json' }
-          });
-        })());
-      }
     } catch (e) {
       console.error('Failed to broadcast message:', e);
     }
