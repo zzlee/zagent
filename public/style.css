@@ -37,6 +37,39 @@ body {
   flex-direction: column;
 }
 
+.user-profile-sidebar {
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  background: white;
+}
+
+.user-profile-sidebar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-info strong {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.user-info span {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
 .sidebar-header {
   padding: 20px;
   border-bottom: 1px solid var(--border);

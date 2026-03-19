@@ -3,7 +3,6 @@ compatibility_date = "2024-01-01"
 pages_build_output_dir = "./dist"
 
 [[d1_databases]]
-binding = "DB"
-database_name = "zagent-db"
-database_id = "local" # For local development
-migrations_dir = "migrations"
+binding = "zagent_db"
+database_name = "zagent_db"
+database_id = "4c22c52e-0807-46be-b561-ee7dbf6c2eea"

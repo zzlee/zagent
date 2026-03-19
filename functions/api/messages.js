@@ -6,7 +6,7 @@ export async function onRequest(context) {
 
   if (request.method === 'GET') {
     if (!roomId) return new Response('roomId required', { status: 400 });
-    const { results } = await env.DB.prepare(`
+    const { results } = await env.zagent_db.prepare(`
       SELECT m.*, u.name, u.picture, u.role
       FROM messages m
       JOIN users u ON m.user_id = u.id
@@ -21,7 +21,7 @@ export async function onRequest(context) {
     if (!userId || !roomId || !content) return new Response('Missing fields', { status: 400 });
 
     const msgId = crypto.randomUUID();
-    await env.DB.prepare(`
+    await env.zagent_db.prepare(`
       INSERT INTO messages (id, room_id, user_id, content)
       VALUES (?, ?, ?, ?)
     `).bind(msgId, roomId, userId, content).run();

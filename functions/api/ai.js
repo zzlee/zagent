@@ -8,7 +8,7 @@ export async function onRequest(context) {
 
   if (request.method === 'GET') {
     // Grant full data access: Fetch all messages from all rooms
-    const { results } = await env.DB.prepare(`
+    const { results } = await env.zagent_db.prepare(`
       SELECT m.*, u.name, u.role, r.name as roomName
       FROM messages m
       JOIN users u ON m.user_id = u.id
@@ -24,7 +24,7 @@ export async function onRequest(context) {
     if (!roomId || !content) return new Response('Missing fields', { status: 400 });
 
     const msgId = crypto.randomUUID();
-    await env.DB.prepare(`
+    await env.zagent_db.prepare(`
       INSERT INTO messages (id, room_id, user_id, content)
       VALUES (?, ?, ?, ?)
     `).bind(msgId, roomId, AI_USER_ID, content).run();

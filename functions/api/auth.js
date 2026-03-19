@@ -3,8 +3,26 @@ export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
 
+  // MOCK MODE: If mock=true is passed, or if client ID is not set, use a dummy user
+  if (url.searchParams.has('mock') || !env.GOOGLE_CLIENT_ID) {
+    const mockProfile = {
+      id: 'mock-user-123',
+      email: 'tester@example.com',
+      name: 'Mock Tester',
+      picture: 'https://via.placeholder.com/150'
+    };
+
+    await env.zagent_db.prepare(`
+      INSERT INTO users (id, email, name, picture)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET name=excluded.name, picture=excluded.picture
+    `).bind(mockProfile.id, mockProfile.email, mockProfile.name, mockProfile.picture).run();
+
+    return Response.redirect(`${new URL(request.url).origin}?userId=${mockProfile.id}`, 302);
+  }
+
   if (url.searchParams.has('code')) {
-    // Exchange code for token
+    // ... rest of real Google OAuth code ...
     const code = url.searchParams.get('code');
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
@@ -27,7 +45,7 @@ export async function onRequest(context) {
     const profile = await userResponse.json();
 
     // Store/Update user in D1
-    await env.DB.prepare(`
+    await env.zagent_db.prepare(`
       INSERT INTO users (id, email, name, picture)
       VALUES (?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET name=excluded.name, picture=excluded.picture

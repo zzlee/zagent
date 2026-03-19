@@ -6,6 +6,7 @@ type Message = { id: string; room_id: string; user_id: string; content: string; 
 
 export default function App() {
   const [userId, setUserId] = useState<string | null>(new URLSearchParams(window.location.search).get('userId'));
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [activeRoom, setActiveRoom] = useState<Room | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -14,6 +15,7 @@ export default function App() {
 
   useEffect(() => {
     if (userId) {
+      fetch(`/api/me?userId=${userId}`).then(res => res.json()).then(setCurrentUser);
       fetch('/api/rooms').then(res => res.json()).then(setRooms);
     }
   }, [userId]);
@@ -63,6 +65,15 @@ export default function App() {
   return (
     <div className="app">
       <div className="sidebar">
+        {currentUser && (
+          <div className="user-profile-sidebar">
+            <img src={currentUser.picture} alt={currentUser.name} />
+            <div className="user-info">
+              <strong>{currentUser.name}</strong>
+              <span>{currentUser.role}</span>
+            </div>
+          </div>
+        )}
         <div className="sidebar-header">Chat Rooms</div>
         <div className="room-list">
           {rooms.map(room => (
