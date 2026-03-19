@@ -6,3 +6,8 @@ pages_build_output_dir = "./dist"
 binding = "zagent_db"
 database_name = "zagent_db"
 database_id = "4c22c52e-0807-46be-b561-ee7dbf6c2eea"
+
+[[durable_objects.bindings]]
+name = "CHAT_ROOM"
+class_name = "ChatRoom"
+script_name = "zagent-worker"

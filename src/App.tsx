@@ -10,6 +10,7 @@ export default function App() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [activeRoom, setActiveRoom] = useState<Room | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [typingUsers, setTypingUsers] = useState<{[key: string]: string}>({});
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -55,11 +56,38 @@ export default function App() {
 
       fetchMessages();
       markAsRead();
-      const interval = setInterval(() => {
-        fetchMessages();
-        markAsRead();
-      }, 3000); // Polling every 3s
-      return () => clearInterval(interval);
+
+      // WebSocket connection
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${protocol}//${window.location.host}/api/ws?roomId=${activeRoom.id}`);
+      
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'NEW_MESSAGE') {
+          fetchMessages();
+          markAsRead();
+          setTypingUsers(prev => {
+            const next = { ...prev };
+            if (next[data.userId || 'ai-agent-001']) {
+               delete next[data.userId || 'ai-agent-001'];
+            }
+            return next;
+          });
+        } else if (data.type === 'TYPING') {
+          setTypingUsers(prev => ({ ...prev, [data.userId]: data.name }));
+          setTimeout(() => {
+            setTypingUsers(prev => {
+              const next = { ...prev };
+              delete next[data.userId];
+              return next;
+            });
+          }, 3000);
+        }
+      };
+
+      return () => {
+        ws.close();
+      };
     }
   }, [activeRoom, userId]);
 
@@ -139,6 +167,9 @@ export default function App() {
                   </div>
                   <div className="message-content">{msg.content}</div>
                 </div>
+              ))}
+              {Object.entries(typingUsers).map(([id, name]) => (
+                <div key={id} className="typing-indicator">{name} is typing...</div>
               ))}
               <div ref={messagesEndRef} />
             </div>

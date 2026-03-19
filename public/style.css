@@ -238,3 +238,18 @@ body {
   margin-top: 20px;
   font-weight: 600;
 }
+
+.typing-indicator {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 4px 10px;
+  font-style: italic;
+  animation: typing-pulse 1.5s infinite;
+  align-self: flex-start;
+}
+
+@keyframes typing-pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}

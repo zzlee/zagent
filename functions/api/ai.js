@@ -29,6 +29,18 @@ export async function onRequest(context) {
       VALUES (?, ?, ?, ?)
     `).bind(msgId, roomId, AI_USER_ID, content).run();
 
+    // Broadcast to WebSocket
+    try {
+      const id = env.CHAT_ROOM.idFromName(roomId);
+      const room = env.CHAT_ROOM.get(id);
+      await room.fetch(new Request('http://localhost/broadcast', {
+        method: 'POST',
+        body: JSON.stringify({ type: 'NEW_MESSAGE', roomId })
+      }));
+    } catch (e) {
+      console.error('Failed to broadcast message:', e);
+    }
+
     return new Response(JSON.stringify({ id: msgId, status: 'sent' }), { status: 201 });
   }
 
