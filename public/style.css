@@ -74,6 +74,24 @@ body {
   padding: 20px;
   border-bottom: 1px solid var(--border);
   font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ask-ai-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.ask-ai-btn:hover {
+  opacity: 0.9;
 }
 
 .room-list {

@@ -16,9 +16,26 @@ export default function App() {
   useEffect(() => {
     if (userId) {
       fetch(`/api/me?userId=${userId}`).then(res => res.json()).then(setCurrentUser);
-      fetch('/api/rooms').then(res => res.json()).then(setRooms);
+      fetch(`/api/rooms?userId=${userId}`).then(res => res.json()).then(setRooms);
     }
   }, [userId]);
+
+  const askAi = async () => {
+    if (!userId) return;
+    const response = await fetch('/api/rooms', {
+      method: 'POST',
+      body: JSON.stringify({ userId, isAiPrivate: true }),
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (response.ok) {
+      const room = await response.json();
+      setRooms(prev => {
+        if (prev.some(r => r.id === room.id)) return prev;
+        return [room, ...prev];
+      });
+      setActiveRoom(room);
+    }
+  };
 
   useEffect(() => {
     if (activeRoom) {
@@ -74,7 +91,10 @@ export default function App() {
             </div>
           </div>
         )}
-        <div className="sidebar-header">Chat Rooms</div>
+        <div className="sidebar-header">
+          Chat Rooms
+          <button className="ask-ai-btn" onClick={askAi}>Ask AI</button>
+        </div>
         <div className="room-list">
           {rooms.map(room => (
             <div 
