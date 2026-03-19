@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 type User = { id: string; name: string; email: string; picture: string; role: string };
 type Room = { id: string; name: string };
-type Message = { id: string; room_id: string; user_id: string; content: string; created_at: string; name: string; role: string };
+type Message = { id: string; room_id: string; user_id: string; content: string; created_at: string; name: string; role: string; is_read: number };
 
 export default function App() {
   const [userId, setUserId] = useState<string | null>(new URLSearchParams(window.location.search).get('userId'));
@@ -38,17 +38,30 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (activeRoom) {
+    if (activeRoom && userId) {
+      const markAsRead = async () => {
+        await fetch('/api/messages', {
+          method: 'PATCH',
+          body: JSON.stringify({ roomId: activeRoom.id, userId }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+      };
+      
       const fetchMessages = () => {
         fetch(`/api/messages?roomId=${activeRoom.id}`)
           .then(res => res.json())
           .then(setMessages);
       };
+
       fetchMessages();
-      const interval = setInterval(fetchMessages, 3000); // Polling every 3s
+      markAsRead();
+      const interval = setInterval(() => {
+        fetchMessages();
+        markAsRead();
+      }, 3000); // Polling every 3s
       return () => clearInterval(interval);
     }
-  }, [activeRoom]);
+  }, [activeRoom, userId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -116,7 +129,14 @@ export default function App() {
             <div className="messages">
               {messages.map(msg => (
                 <div key={msg.id} className={`message-bubble ${msg.user_id === userId ? 'message-user' : 'message-other'} ${msg.role === 'ai' ? 'message-ai' : ''}`}>
-                  <div className="message-info">{msg.name} • {new Date(msg.created_at).toLocaleTimeString()}</div>
+                  <div className="message-info">
+                    {msg.name} • {new Date(msg.created_at).toLocaleTimeString()}
+                    {msg.user_id === userId && (
+                      <span className={`read-status ${msg.is_read ? 'read' : ''}`}>
+                        {msg.is_read ? ' ✓✓' : ' ✓'}
+                      </span>
+                    )}
+                  </div>
                   <div className="message-content">{msg.content}</div>
                 </div>
               ))}

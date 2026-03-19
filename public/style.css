@@ -169,6 +169,19 @@ body {
   font-size: 0.7rem;
   margin-bottom: 4px;
   opacity: 0.8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.read-status {
+  font-weight: bold;
+  margin-left: 5px;
+  color: #94a3b8; /* Light slate */
+}
+
+.read-status.read {
+  color: #0ea5e9; /* Blue for read */
 }
 
 .input-area {

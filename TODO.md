@@ -11,6 +11,7 @@
 - [x] GitHub Integration & Secret Scanning Protection
 - [x] Enhanced UI Readability (Colors, Bubbles, Sidebar)
 - [x] Private AI Chat Function ("Ask AI")
+- [x] Read/Unread status for messages
 
 ## Future Tasks 🚀
 - [ ] 
