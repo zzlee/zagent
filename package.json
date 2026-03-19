@@ -1,0 +1,24 @@
+{
+  "name": "zagent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "mkdir -p dist && esbuild src/index.tsx --bundle --outfile=dist/index.js --loader:.tsx=tsx --loader:.ts=ts --platform=browser --target=esnext && cp -r public/* dist/",
+    "dev": "wrangler pages dev ./dist --d1=DB",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "esbuild": "^0.27.4",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.75.0"
+  }
+}
