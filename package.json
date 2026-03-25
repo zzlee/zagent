@@ -7,7 +7,8 @@
     "build": "mkdir -p dist && esbuild src/index.tsx --bundle --outfile=dist/index.js --loader:.tsx=tsx --loader:.ts=ts --platform=browser --target=esnext && cp -r public/* dist/ && npm run build-worker",
     "build-worker": "esbuild src/chat-worker.ts --bundle --outfile=dist/chat-worker.js --platform=node --target=esnext --format=esm",
     "dev": "wrangler pages dev ./dist --d1=zagent_db --persist-to=.wrangler/state/v3 --do CHAT_ROOM=ChatRoom@chat-worker.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "poll": "node scripts/poll-unread.js"
   },
   "keywords": [],
   "author": "",

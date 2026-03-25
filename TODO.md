@@ -15,4 +15,4 @@
 - [x] Verified comprehensive production deployment across Cloudflare Pages, D1, and Durable Objects.
 
 ## Future Tasks 🚀
-- [ ] Develop a local AI agent capable of polling chat rooms, processing messages via inference, updating read status, and publishing responses.
+- [ ] Poll unread messages from chat rooms and mark these messages as read
