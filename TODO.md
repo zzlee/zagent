@@ -12,7 +12,9 @@
 - [x] Optimized UI readability through enhanced color schemes, message bubbles, and sidebar navigation.
 - [x] Implemented a dedicated "Ask AI" private chat feature.
 - [x] Added message read/unread tracking functionality.
+- [x] Implemented API key authentication for the AI agent role (`AI_AGENT_KEY`).
 - [x] Verified comprehensive production deployment across Cloudflare Pages, D1, and Durable Objects.
+- [x] Poll unread messages from chat rooms and mark these messages as read (via `scripts/poll-unread.js`).
 
 ## Future Tasks 🚀
-- [ ] Poll unread messages from chat rooms and mark these messages as read
+- [ ] Add more AI agent features (e.g., summarizing conversations)

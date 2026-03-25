@@ -53,6 +53,27 @@ export function createExpiredSessionCookie(request) {
 }
 
 export async function getSession(env, request) {
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    if (env.AI_AGENT_KEY && token === env.AI_AGENT_KEY) {
+      // AI Agent authentication
+      const aiUser = await env.zagent_db.prepare(`
+        SELECT id, email, name, picture, role
+        FROM users
+        WHERE role = 'ai'
+        LIMIT 1
+      `).first();
+
+      if (aiUser) {
+        return {
+          id: 'ai-session',
+          user: aiUser
+        };
+      }
+    }
+  }
+
   const cookies = parseCookies(request);
   const sessionId = cookies[SESSION_COOKIE];
 

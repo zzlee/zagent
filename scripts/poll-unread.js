@@ -1,9 +1,21 @@
+// scripts/poll-unread.js
+require('dotenv').config();
+// Also load from .dev.vars if it exists (for compatibility with wrangler's local dev)
+require('dotenv').config({ path: '.dev.vars' });
+
 const API_BASE = process.env.API_BASE || 'http://localhost:8788';
 
-const AI_AGENT_ID = 'ai-agent-001';
+const AI_AGENT_KEY = process.env.AI_AGENT_KEY;
 
 async function fetchUnreadMessages() {
-  const response = await fetch(`${API_BASE}/api/ai?unread=true`);
+  if (!AI_AGENT_KEY) {
+    throw new Error('AI_AGENT_KEY environment variable is required');
+  }
+  const response = await fetch(`${API_BASE}/api/ai?unread=true`, {
+    headers: {
+      'Authorization': `Bearer ${AI_AGENT_KEY}`
+    }
+  });
   if (!response.ok) {
     throw new Error(`Failed to fetch unread messages: ${response.status}`);
   }
@@ -12,8 +24,14 @@ async function fetchUnreadMessages() {
 }
 
 async function markMessagesAsRead() {
+  if (!AI_AGENT_KEY) {
+    throw new Error('AI_AGENT_KEY environment variable is required');
+  }
   const response = await fetch(`${API_BASE}/api/ai`, {
     method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${AI_AGENT_KEY}`
+    }
   });
   if (!response.ok) {
     throw new Error(`Failed to mark messages as read: ${response.status}`);

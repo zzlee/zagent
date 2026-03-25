@@ -16,8 +16,9 @@ A modern, real-time chat application hosted on Cloudflare Pages/Workers using D1
 - **Real-time (Optional/MVP)**: Polling or Server-Sent Events (SSE) for message updates (Durable Objects could be used for true WebSockets, but for MVP we will focus on REST).
 - **AI Agent**: 
   - A special user record in the `users` table.
-  - Interacts via a dedicated REST API: `POST /api/ai/send` and `GET /api/ai/messages`.
-  - Has access to the entire `messages` table for context.
+  - Interacts via a dedicated REST API: `POST /api/ai` and `GET /api/ai`.
+  - Authenticated via an `AI_AGENT_KEY` provided in the `Authorization: Bearer <key>` header.
+  - Has privileged access to the entire `messages` table for context and can join any room.
 
 ## 4. Database Schema (D1)
 ```sql

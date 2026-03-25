@@ -8,6 +8,11 @@ export async function onRequest(context) {
   }
 
   if (request.method === 'GET') {
+    if (user.role === 'ai') {
+      const { results } = await env.zagent_db.prepare(`SELECT * FROM rooms`).all();
+      return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
+    }
+
     const { results: publicRooms } = await env.zagent_db.prepare(`
       SELECT * FROM rooms WHERE id = 'global-chat'
     `).all();
@@ -37,9 +42,12 @@ export async function onRequest(context) {
       const existing = await env.zagent_db.prepare(`SELECT * FROM rooms WHERE id = ?`).bind(roomId).first();
 
       if (!existing) {
+        const aiUser = await env.zagent_db.prepare(`SELECT id FROM users WHERE role = 'ai' LIMIT 1`).first();
+        if (!aiUser) return new Response('AI User not found', { status: 500 });
+
         await env.zagent_db.prepare(`INSERT INTO rooms (id, name) VALUES (?, ?)`).bind(roomId, 'AI Assistant (Private)').run();
         await env.zagent_db.prepare(`INSERT INTO room_participants (room_id, user_id) VALUES (?, ?)`).bind(roomId, user.id).run();
-        await env.zagent_db.prepare(`INSERT INTO room_participants (room_id, user_id) VALUES (?, ?)`).bind(roomId, 'ai-agent-001').run();
+        await env.zagent_db.prepare(`INSERT INTO room_participants (room_id, user_id) VALUES (?, ?)`).bind(roomId, aiUser.id).run();
       }
       return new Response(JSON.stringify({ id: roomId, name: 'AI Assistant (Private)' }), { status: 201 });
     }

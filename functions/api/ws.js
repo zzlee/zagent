@@ -1,14 +1,14 @@
 import { requireUser } from '../_lib/session.js';
 
-async function userCanAccessRoom(env, userId, roomId) {
-  if (roomId === 'global-chat') {
+async function userCanAccessRoom(env, user, roomId) {
+  if (user.role === 'ai' || roomId === 'global-chat') {
     return true;
   }
 
   const participant = await env.zagent_db.prepare(`
     SELECT 1 FROM room_participants
     WHERE room_id = ? AND user_id = ?
-  `).bind(roomId, userId).first();
+  `).bind(roomId, user.id).first();
 
   return Boolean(participant);
 }
@@ -23,7 +23,7 @@ export async function onRequest(context) {
   }
 
   if (!roomId) return new Response('roomId required', { status: 400 });
-  if (!(await userCanAccessRoom(env, user.id, roomId))) {
+  if (!(await userCanAccessRoom(env, user, roomId))) {
     return new Response('Forbidden', { status: 403 });
   }
 

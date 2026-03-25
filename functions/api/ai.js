@@ -1,10 +1,13 @@
-// functions/api/ai.js
+import { requireUser } from '../_lib/session.js';
+
 export async function onRequest(context) {
   const { request, env } = context;
-  const url = new URL(request.url);
+  const user = await requireUser(context);
+  if (user instanceof Response) return user;
+  if (user.role !== 'ai') return new Response('Forbidden', { status: 403 });
 
-  // AI agent's dedicated user ID
-  const AI_USER_ID = 'ai-agent-001';
+  const url = new URL(request.url);
+  const userId = user.id;
 
   if (request.method === 'GET') {
     const unreadOnly = url.searchParams.get('unread') === 'true';
@@ -39,7 +42,7 @@ export async function onRequest(context) {
     await env.zagent_db.prepare(`
       INSERT INTO messages (id, room_id, user_id, content)
       VALUES (?, ?, ?, ?)
-    `).bind(msgId, roomId, AI_USER_ID, content).run();
+    `).bind(msgId, roomId, userId, content).run();
 
     // Broadcast to WebSocket
     try {
