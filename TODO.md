@@ -1,17 +1,18 @@
 # Project Roadmap: Cloudflare Chat App with AI Agent
 
 ## Done ✅
-- [x] Initial Project Setup (Wrangler, React, D1)
-- [x] Database Schema Design & Migration
-- [x] Backend API (Rooms, Messages, Auth, AI Agent)
-- [x] Modern Messaging UI (React, TypeScript, Vanilla CSS)
-- [x] Google OAuth2 Authentication (Mock & Real)
-- [x] AI Agent Privileged Data Access (REST API)
-- [x] Production Deployment to Cloudflare Pages/D1
-- [x] GitHub Integration & Secret Scanning Protection
-- [x] Enhanced UI Readability (Colors, Bubbles, Sidebar)
-- [x] Private AI Chat Function ("Ask AI")
-- [x] Read/Unread status for messages
+- [x] Scaffolded initial project environment using Wrangler, React, and D1.
+- [x] Designed and executed database schema migrations.
+- [x] Implemented backend RESTful APIs for rooms, messaging, authentication, and AI integration.
+- [x] Developed a modern, responsive chat interface using React, TypeScript, and CSS.
+- [x] Integrated Google OAuth2 authentication with support for both production and local development.
+- [x] Provisioned RESTful APIs for privileged data access by AI agents.
+- [x] Successfully deployed the application to Cloudflare Pages and D1.
+- [x] Configured GitHub integration and enabled secret scanning protections.
+- [x] Optimized UI readability through enhanced color schemes, message bubbles, and sidebar navigation.
+- [x] Implemented a dedicated "Ask AI" private chat feature.
+- [x] Added message read/unread tracking functionality.
+- [x] Verified comprehensive production deployment across Cloudflare Pages, D1, and Durable Objects.
 
 ## Future Tasks 🚀
-- [ ] 
+- [ ] Develop a local AI agent capable of polling chat rooms, processing messages via inference, updating read status, and publishing responses.
