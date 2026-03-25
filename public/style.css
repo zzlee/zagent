@@ -253,3 +253,20 @@ body {
   50% { opacity: 1; }
   100% { opacity: 0.4; }
 }
+
+
+.mock-login-link {
+  display: block;
+  margin-top: 14px;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.logout-btn {
+  margin-left: auto;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+}

@@ -1,11 +1,33 @@
-// functions/api/messages.js
+import { requireUser } from '../_lib/session.js';
+
+async function userCanAccessRoom(env, userId, roomId) {
+  if (roomId === 'global-chat') {
+    return true;
+  }
+
+  const participant = await env.zagent_db.prepare(`
+    SELECT 1 FROM room_participants
+    WHERE room_id = ? AND user_id = ?
+  `).bind(roomId, userId).first();
+
+  return Boolean(participant);
+}
+
 export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   const roomId = url.searchParams.get('roomId');
+  const user = await requireUser(context);
+  if (user instanceof Response) {
+    return user;
+  }
 
   if (request.method === 'GET') {
     if (!roomId) return new Response('roomId required', { status: 400 });
+    if (!(await userCanAccessRoom(env, user.id, roomId))) {
+      return new Response('Forbidden', { status: 403 });
+    }
+
     const { results } = await env.zagent_db.prepare(`
       SELECT m.*, u.name, u.picture, u.role
       FROM messages m
@@ -17,22 +39,24 @@ export async function onRequest(context) {
   }
 
   if (request.method === 'POST') {
-    const { userId, roomId, content } = await request.json();
-    if (!userId || !roomId || !content) return new Response('Missing fields', { status: 400 });
+    const { roomId: targetRoomId, content } = await request.json();
+    if (!targetRoomId || !content) return new Response('Missing fields', { status: 400 });
+    if (!(await userCanAccessRoom(env, user.id, targetRoomId))) {
+      return new Response('Forbidden', { status: 403 });
+    }
 
     const msgId = crypto.randomUUID();
     await env.zagent_db.prepare(`
       INSERT INTO messages (id, room_id, user_id, content)
       VALUES (?, ?, ?, ?)
-    `).bind(msgId, roomId, userId, content).run();
+    `).bind(msgId, targetRoomId, user.id, content).run();
 
-    // Broadcast to WebSocket
     try {
-      const id = env.CHAT_ROOM.idFromName(roomId);
+      const id = env.CHAT_ROOM.idFromName(targetRoomId);
       const room = env.CHAT_ROOM.get(id);
       await room.fetch(new Request('http://localhost/broadcast', {
         method: 'POST',
-        body: JSON.stringify({ type: 'NEW_MESSAGE', roomId })
+        body: JSON.stringify({ type: 'NEW_MESSAGE', roomId: targetRoomId })
       }));
     } catch (e) {
       console.error('Failed to broadcast message:', e);
@@ -42,15 +66,16 @@ export async function onRequest(context) {
   }
 
   if (request.method === 'PATCH') {
-    const { roomId, userId } = await request.json();
-    if (!roomId || !userId) return new Response('Missing fields', { status: 400 });
+    const { roomId: targetRoomId } = await request.json();
+    if (!targetRoomId) return new Response('Missing fields', { status: 400 });
+    if (!(await userCanAccessRoom(env, user.id, targetRoomId))) {
+      return new Response('Forbidden', { status: 403 });
+    }
 
-    // Mark messages in the room as read for the current user
-    // In this simple app, we mark messages NOT sent by the user as read
     await env.zagent_db.prepare(`
       UPDATE messages SET is_read = 1
       WHERE room_id = ? AND user_id != ? AND is_read = 0
-    `).bind(roomId, userId).run();
+    `).bind(targetRoomId, user.id).run();
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   }
